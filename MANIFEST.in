@@ -1,0 +1,2 @@
+recursive-include lgr/static *
+recursive-include lgr/templates *

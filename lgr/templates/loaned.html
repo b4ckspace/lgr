@@ -1,0 +1,23 @@
+{{ message }}
+
+{% if loanedcodes %}
+<hr>
+<h3>Following Barcodes are already loaned:</h3>
+<ul>
+{% for code in loanedcodes %}
+    <li>{{ code.item__name }}({{ code.code }}) loan to {{ code.loans__person__nickname }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if codes %}
+<hr>
+<div>
+<h3> List of barcodes you selected to loan: </h3>
+<ul>
+    {% for code in codes %}
+    <li>{{ code.item.name }}({{ code.code }})</li>
+    {% endfor %}
+</ul>
+</div>
+{% endif %}

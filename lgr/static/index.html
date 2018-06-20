@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/static/css/buefy.min.css">
+        <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+        <title>Toolbox</title>
+    </head>
+    <body>
+        <div class="section">
+        <div id="app" class="container">
+
+            <template>
+                <section>
+                    <form action="#">
+                        <b-modal :active.sync="loanConfirmActive" has-modal-card>
+                        <div class="modal-card" scroll="none">
+                            <header class="modal-card-head">
+                                <p class="modal-card-title">Create loan</p>
+                            </header>
+                            <section class="modal-card-body">
+                                <p>Are you sure that you want to loan these Items?</p>
+                                <b-field>
+                                    <b-datepicker
+                                        placeholder="Return date..."
+                                        icon="calendar-today"
+                                        expanded
+                                        v-model="loanReturnDate"
+                                        :min-date="loanMinDate"
+                                        :max-date="loanMaxDate">
+                                    </b-datepicker>
+                                </b-field>
+                                <b-table :data="loanConfirmData"
+                                         :loading="loanConfirmLoading"
+                                         :checked-rows.sync="loanConfirmCheckedRows"
+                                         :is-row-checkable="(row) => row.loan === false"
+
+                                         checkable
+                                         hoverable
+                                         striped>
+                                    <template slot-scope="props">
+                                        <b-table-column field="code" label="Barcode" numeric>
+                                            {{ props.row.code }}
+                                        </b-table-column>
+                                        <b-table-column field="loans__status" label="Loan">
+                                            <span v-if="props.row.loan === true">
+                                                <b-icon icon="account" type="is-danger" ></b-icon>
+                                                {{ props.row.person }}
+                                            </span>
+                                            <span v-else>
+                                                <b-icon icon="home" type="is-success" ></b-icon>
+                                            </span>
+                                        </b-table-column>
+                                        <b-table-column field="item" label="Item">
+                                            {{ props.row.item }}
+                                        </b-table-column>
+                                        <b-table-column field="description" label="Description">
+                                            {{ props.row.description }}
+                                        </b-table-column>
+                                    </template>
+                                </b-table>
+                            </section>
+                            <footer class="modal-card-foot">
+                                <button class="button"
+                                        @click="loanConfirmActive = false">
+                                    Abort
+                                </button>
+                                <button class="button is-primary"
+                                        @click="confirmLoan"
+                                        :disabled="loanConfirmCheckedRows.length == 0">
+                                    Loan
+                                </button>
+                            </footer>
+                        </div>
+                    </b-modal>
+                    </form>
+                </section>
+            </template>
+
+            <div class="columns">
+                <div class="column">
+                    <h1 class="title">
+                        Toolbox
+                    </h1>
+                </div>
+                <div class="column" >
+                    <template>
+                        <section>
+
+                            <b-collapse class="card">
+                                <div slot="trigger" slot-scope="props" class="card-header">
+                                    <p class="card-header-title">
+                                        <span v-if="loginLoggedIn">
+                                            Logged in as {{ loginUsername }}
+                                        </span>
+                                        <span v-else>
+                                            Login
+                                        </span>
+                                    </p>
+                                    <a class="card-header-icon">
+                                        <b-icon
+                                            :icon="props.open ? 'menu-down' : 'menu-up'">
+                                        </b-icon>
+                                    </a>
+                                </div>
+                                <div class="card-content">
+                                    <form action="#">
+                                        <template v-if="loginLoggedIn">
+                                            <section>
+                                                <div class="control">
+                                                    <button class="button" @click="logout">Logout</button>
+                                                </div>
+                                            </section>
+                                        </template>
+                                        <template v-else>
+                                            <section>
+                                                <b-field label="Name"
+                                                         :message="loginError"
+                                                         :type="loginType">
+                                                    <b-input v-model="loginUsername"
+                                                             placeholder="Enter your username"
+                                                             icon="account">
+                                                    </b-input>
+                                                </b-field>
+                                                <b-field label="Password"
+                                                         :message="loginError"
+                                                         :type="loginType">
+                                                    <b-input v-model="loginPassword"
+                                                             type="password"
+                                                             placeholder="Enter your password"
+                                                             icon="key"
+                                                             loginPassword-reveal>
+                                                    </b-input>
+                                                </b-field>
+                                                <div class="field is-grouped">
+                                                    <div class="control">
+                                                        <button class="button is-primary" @click="login">Submit</button>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        </template>
+                                    </form>
+                                </div>
+                            </b-collapse>
+
+                        </section>
+                    </template>
+                </div>
+            </div>
+            <div class="columns"><div class="column">
+                <form action="#">
+                <template>
+                    <section>
+                        <b-field>
+                            <p class="control">
+                                <button
+                                    class="button is-info"
+                                    @click="clearSelection" >
+                                    Unselect
+                                </button>
+                            </p>
+                            <p class="control">
+                                <button
+                                    class="button is-danger"
+                                    @click="clearSearch" >
+                                    Clear
+                                </button>
+                            </p>
+                            <button style="display: None"
+                                    @click="markSearch">
+                            </button>
+                            <b-input
+                                icon="magnify"
+                                placeholder="Search..."
+                                v-model="tableSearch"
+                                @input="debounceSearch"
+                                ref="search"
+                                autofocus
+                                expanded >
+                            </b-input>
+                            <p class="control">
+                                <button class="button"
+                                        @click="checkLoan"
+                                        :disabled="tableCheckedRows.length == 0">
+                                    Create loan...
+                                </button>
+                            </p>
+                        </b-field>
+                    </section>
+                </template>
+                </form>
+            </div></div>
+            <div class="columns"><div class="column">
+                <template>
+                    <section>
+                        <b-table
+                            :data="tableData"
+                            :loading="tableLoading"
+
+                            :checked-rows.sync="tableCheckedRows"
+                            :is-row-checkable="(row) => row.api_loan_info.loan === false"
+                            :checkable="tableCheckable"
+
+                            paginated
+                            backend-pagination
+                            :total="tableCount"
+                            :per-page="tableLimit"
+                            @page-change="onPageChange"
+
+                            backend-sorting
+                            :default-sort="['code']"
+                            @sort="onSort"
+
+                            detailed
+                            detailed-key="code"
+                            :opened-detailed="tableOpen"
+
+                            hoverable
+			    checkable
+                            striped>
+                            <template slot-scope="props">
+                                <b-table-column field="code" label="Barcode" sortable numeric>
+                                    <a @mouseover="openRow(props.row.code)" @click="onSearch(props.row.code, '!')">
+                                        {{ props.row.code }}
+                                    </a>
+                                    <a :href="'/admin/lgr/barcode/?q=code:' + props.row.code">
+                                        <b-icon icon="open-in-new" size="is-small"></b-icon>
+                                    </a>
+                                </b-table-column>
+                                <b-table-column field="api_loan_info" label="Loan">
+                                    <span v-if="props.row.api_loan_info.loan === true">
+                                        <a @click="onSearch(props.row.api_loan_info.person, '!user:')">
+                                            <b-icon icon="account" type="is-danger" ></b-icon>
+                                            {{ props.row.api_loan_info.person }}
+                                        </a>
+                                    </span>
+                                    <span v-else>
+                                        <b-icon icon="home" type="is-success" ></b-icon>
+                                    </span>
+                                </b-table-column>
+                                <b-table-column field="item" label="Item" sortable>
+                                    <a @click="onSearch(props.row.item_name, '!item:')">
+                                        {{ props.row.item_name }}
+                                    </a>
+                                </b-table-column>
+                                <b-table-column field="description" label="Description" sortable>
+                                    {{ props.row.description }}
+                                </b-table-column>
+                                <b-table-column field="item_description" label="Item Description" sortable>
+                                    {{ props.row.item_description }}
+                                </b-table-column>
+                            </template>
+
+                            <template slot="detail" slot-scope="props">
+                                <nav class="breadcrumb" aria-label="breadcrumbs">
+                                    <ul>
+                                        <li><b-icon icon="home"></b-icon></li>
+                                        <li v-for="parent in props.row.api_parent_names" >
+                                            <a @click="onSearch(parent.code, '!')">{{ parent.name }}</a>
+                                        </li>
+                                        <li><a>self</a></li>
+                                    </ul>
+                                </nav>
+                                <div v-if="props.row.api_child_names.length > 0" class="content">
+                                    Children:
+                                    <ul>
+                                        <li v-for="child in props.row.api_child_names">
+                                            <a @click="onSearch(child.code, '!')">{{ child.name }}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="content">
+                                    History:
+                                    <ul>
+                                        <li v-for="history in props.row.api_history">
+                                            <div>
+                                                <span class="tag is-info">{{ history.user }}</span>
+                                                <span class="tag is-warning">{{ history.field }}</span>
+                                            </div>
+                                            <span :title="history.old">{{ history.old | cleanupHistory }}</span> ->
+                                                <span :title="history.new">{{ history.new | cleanupHistory }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </template>
+                        </b-table>
+                    </section>
+                </template>
+            </div></div>
+
+        </div>
+        </div>
+
+        <script src="/static/js/vue.js"></script>
+        <script src="/static/js/buefy.min.js"></script>
+        <script src="/static/js/axios.min.js"></script>
+
+        <script>
+
+         const today = new Date();
+
+         new Vue({
+             el: '#app',
+             data () {
+                 return {
+                     apiUrl: '/api/barcodes/',
+
+                     loginError: '',
+                     loginLoading: true,
+                     loginLoggedIn: false,
+                     loginPassword: '',
+                     loginType: '',
+                     loginUsername: '',
+
+                     tableCheckable: false,
+                     tableCheckedRows: [],
+                     tableCount: 0,
+                     tableData: [],
+                     tableLimit: 25,
+                     tableLoading: false,
+                     tableOffset: 0,
+                     tableOpen: [],
+                     tableOrdering: "code",
+                     tableSearch: "",
+
+                     loanMinDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1),
+                     loanMaxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 31),
+                     loanReturnDate: today,
+                     loanConfirmActive: false,
+                     loanConfirmLoading: false,
+                     loanConfirmData: [],
+                     loanConfirmCheckedRows: [],
+
+                     searchTimeout: null,
+                 }
+             },
+
+             filters: {
+                 cleanupHistory(value) {
+                     if (value.indexOf('\n') >= 0) {
+                         value = value.split('\n')[0]
+                         value = value.substr(0, 27)
+                         value = `${value}...`
+                     }
+                     else if (value.length > 30) {
+                         value = value.substr(0, 27)
+                         value = `${value}...`
+                     }
+                     return value
+                 }
+             },
+
+             methods: {
+                 loadAsyncData() {
+                     this.tableLoading = true
+                     // remove selected from offset to keep pagination working
+                     checked = this.tableCheckedRows
+                     offset = this.tableOffset - checked.length
+                     axios.get(`${this.apiUrl}?limit=${this.tableLimit}&offset=${offset}&search=${this.tableSearch}&ordering=${this.tableOrdering}`)
+                          .then(({data}) => {
+                              // keep selected results and do not return more than 25 items
+                              this.tableData = checked.concat(data.results)
+                              this.tableData = this.tableData.slice(0, this.tableLimit)
+                              this.tableCount = data.count
+                              this.tableLoading = false
+                          })
+                 },
+
+                 onPageChange(page) {
+                     this.tableOffset = (page - 1) * this.tableLimit
+                     this.loadAsyncData()
+                 },
+
+                 debounceSearch(search) {
+                     if (this.searchTimeout) {
+                         clearTimeout(this.searchTimeout)
+                     }
+                     this.searchTimeout = setTimeout(() => {
+                         this.onSearch(search)
+                     }, 200);
+                 },
+
+                 onSearch(search, prefix='') {
+                     this.tableOffset = 0
+                     this.tableSearch = `${prefix}${search}`
+                     this.loadAsyncData()
+                 },
+
+                 onSort(field, order) {
+                     order = order == 'asc' ? '' : '-'
+                     this.tableOrdering = `${order}${field}`
+                     this.loadAsyncData()
+                 },
+
+                 clearSearch(item) {
+                     this.tableSearch = ''
+                 },
+
+                 clearSelection(item) {
+                     this.tableCheckedRows = []
+                 },
+
+                 openRow(code) {
+                     self.tableOpen = [code]
+                 },
+
+                 login() {
+                     axios.post('/auth',
+                                {username: this.loginUsername,
+                                 password: this.loginPassword},
+                                {xsrfCookieName: 'csrftoken',
+                                 xsrfHeaderName: 'X-CSRFToken'
+                                })
+                          .then(({data}) => {
+                              this.loginUsername = data.username
+                              this.loginLoggedIn = data.logged_in
+                              this.tableCheckable = data.logged_in
+                              this.loginPassword = ''
+                              this.loginError = ''
+                          })
+                          .catch((error) => {
+                              data = error.response.data
+                              this.loginType = 'is-danger'
+                              this.loginError = data.message
+                          })
+                 },
+
+                 logout() {
+                     axios.delete('/auth',
+                                  {xsrfCookieName: 'csrftoken',
+                                   xsrfHeaderName: 'X-CSRFToken'
+                                  })
+                          .then(({data}) => {
+                              this.loginUsername = data.username
+                              this.loginLoggedIn = data.logged_in
+                              this.loginType = ''
+                              this.tableCheckable = data.logged_in
+                          })
+                 },
+
+                 loginStatus() {
+                     axios.get('/auth')
+                          .then(({data}) => {
+                              this.loginUsername = data.username
+                              this.loginLoggedIn = data.logged_in
+                              this.tableCheckable = data.logged_in
+                          })
+                 },
+
+                 checkLoan() {
+                     this.loanConfirmActive = true
+                     this.loanConfirmLoading = true
+                     axios.post('/loan',
+                                {return_date: this.loanReturnDate,
+                                 items: this.tableCheckedRows,
+                                 preview: true},
+                                {xsrfCookieName: 'csrftoken',
+                                 xsrfHeaderName: 'X-CSRFToken'
+                                })
+                         .then(({data}) => {
+			     console.log("this is wrong")
+                             this.loanConfirmData = data.items
+                             this.loanConfirmLoading = false
+                             this.loanConfirmCheckedRows = data.items.filter((item) => {
+                                 return item.loan === false
+                             })
+                         })
+			 .catch((err) => {
+			     this.loanConfirmActive = false
+			     this.loanConfirmLoading = false
+			     message = err.response.data.message || 'Unable to load preview'
+                             this.$snackbar.open({
+                                 message: message,
+                                 position: 'is-top',
+				 type: 'is-danger',
+				 actionText: null,
+                             })
+			 })
+                 },
+
+                 confirmLoan(message) {
+                     this.loanConfirmLoading = true
+                     axios.post('/loan',
+                                {return_date: this.loanReturnDate,
+                                 items: this.loanConfirmCheckedRows},
+                                {xsrfCookieName: 'csrftoken',
+                                 xsrfHeaderName: 'X-CSRFToken'
+                                })
+                          .then(({data}) => {
+                              this.loanConfirmActive = false
+                              this.$snackbar.open({
+                                  message: data.message,
+                                  position: 'is-top',
+                              })
+                              this.tableCheckedRows = []
+                              this.loadAsyncData()
+                          })
+                 },
+
+                 markSearch(event) {
+                     this.$refs.search.$refs.input.select()
+                 }
+             },
+
+             mounted () {
+                 this.loadAsyncData()
+                 this.loginStatus()
+             }
+         })
+        </script>
+    </body>
+</html>
