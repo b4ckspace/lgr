@@ -1,2 +1,2 @@
-recursive-include lgr/static *
-recursive-include lgr/templates *
+recursive-include src/lgr/static *
+recursive-include src/lgr/templates *

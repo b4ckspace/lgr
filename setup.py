@@ -1,9 +1,10 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='lgr',
     version='0.1.3',
-    packages=['lgr'],
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
     include_package_data=True,
     install_requires=[
         'django',
