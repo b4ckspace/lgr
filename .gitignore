@@ -1,5 +1,5 @@
 db.sqlite3
-lgr/settings_dev.py
+srv/lgr/settings_dev.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
