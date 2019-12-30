@@ -19,6 +19,7 @@ class BarcodeHistoryMixin():
                 yield field, old, new
 
     def save(self, *args, user=None, **kwargs):
+        """Inject history in save function."""
         if user:
             # find changes and write them to history
             for field, old, new in self.diff():
@@ -27,7 +28,7 @@ class BarcodeHistoryMixin():
                 history.save()
 
                 # track parent changes for all children
-                if field == 'parent':
+                if field == 'parent' and old != self:
                     history.affected.set(self.all_children)
                 else:
                     history.affected.set([self])

@@ -1,5 +1,6 @@
 from json import loads
 from itertools import chain
+
 from django.contrib.auth import authenticate, login, logout
 from django.db import models as fancy
 from django.http import JsonResponse

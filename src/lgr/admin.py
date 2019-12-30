@@ -1,11 +1,14 @@
 from itertools import chain, islice
+from typing import List
+
 from django.contrib import admin, messages
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse, path
 from django.utils.html import format_html, format_html_join
-from lgr import models, forms
-from typing import List
+
+from lgr import models, forms, validators
+
 
 admin.site.site_header = 'Inventory'
 admin.site.index_title = 'Inventory Administration'
@@ -200,24 +203,37 @@ class BarcodeAdmin(admin.ModelAdmin):
     def process_quickadd(request, barcodes: list, parent=None):
         """Recursive creation of Barcodes form nested dicts."""
         for barcode in barcodes:
-            parent = None
-            if barcode.parent:
-                parent = models.Barcode.objects.filter(code=barcode.parent).first()
+            if isinstance(barcode, str):
+                messages.info(request, 'Barcode %s not found!.' % barcode)
+                continue
 
-            item, item_new = models.Item.objects.get_or_create(name=barcode.item)
-            if item_new:
-                messages.info(request, 'Item %s created.' % item)
+            if isinstance(barcode, validators.BarcodeTuple):
+                parent = None
+                if barcode.parent:
+                    parent = models.Barcode.objects.filter(code=barcode.parent).first()
 
-            owner, owner_new = models.Person.objects.get_or_create(nickname=barcode.owner)
-            if owner_new:
-                messages.info(request, 'Person %s created.' % owner)
+                item, item_new = models.Item.objects.get_or_create(name=barcode.item)
+                if item_new:
+                    messages.info(request, 'Item %s created.' % item)
 
-            if not isinstance(barcode, models.Barcode):
+                owner, owner_new = models.Person.objects.get_or_create(
+                    nickname=barcode.owner
+                )
+                if owner_new:
+                    messages.info(request, 'Person %s created.' % owner)
+
                 barcode = models.Barcode(code=barcode.code,
                                          description=barcode.description,
                                          item=item, owner=owner, parent=parent)
-                barcode.save()
                 messages.info(request, 'Barcode %s created.' % barcode)
+
+            if isinstance(barcode, models.Barcode):
+                if not barcode.parent:
+                    messages.info(request,
+                                  'Ignoring parent change to None for %s.' % barcode.code)
+                messages.info(request, 'Parent updated to %s.' % (barcode.parent))
+
+            barcode.save()
 
     @staticmethod
     def process_moveinto(request, barcodes: list, parent):

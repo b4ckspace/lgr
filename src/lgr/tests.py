@@ -1,8 +1,9 @@
+from json import loads
+
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from json import loads
 
 from lgr import models
 from lgr import admin
@@ -79,6 +80,7 @@ class MainTestCase(TestCase):
                          owner=self.backspace, description='4 Ecken'),
             BarcodeTuple(code='1237', item='Circle', parent=None,
                          owner=self.backspace, description=''),
+            models.Barcode.objects.get(pk=1337),
             BarcodeTuple(code='1238', item='Circle', parent='1337',
                          owner=self.backspace, description=''),
             BarcodeTuple(code='7777', item='CreateItemTest', parent=None,
