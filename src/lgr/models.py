@@ -4,9 +4,13 @@ from django.utils.html import mark_safe
 from django.db import models
 from django.contrib import messages
 from django.conf import settings
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from lgr.mixin import BarcodeHistoryMixin
 
+from PIL import Image
+from io import BytesIO
+import sys
 
 class Tag(models.Model):
     name = models.CharField(max_length=64)
@@ -37,6 +41,31 @@ class Item(models.Model):
     def image_tag(self):
         return mark_safe('<img src="%s" width="%s" height="%s" />' % (self.image.url, self.image.width, self.image.height))
     image_tag.short_description = 'Image Preview'
+
+    # adapted from: https://djangosnippets.org/snippets/10597/
+    def save(self):
+        #Opening the uploaded image
+        im = Image.open(self.image)
+
+        output = BytesIO()
+
+        #Resize/modify the image
+        max_height = im.height
+        max_width = im.width
+        if(settings.MEDIA_ITEM_MAX_HEIGHT > 0):
+            max_height = settings.MEDIA_ITEM_MAX_HEIGHT
+        if(settings.MEDIA_ITEM_MAX_WIDTH > 0):
+            max_width = settings.MEDIA_ITEM_MAX_WIDTH
+        im.thumbnail((max_width, max_height))
+
+        #after modifications, save it to the output
+        im.save(output, format='JPEG', quality=settings.MEDIA_ITEM_JPEG_QUALITY)
+        output.seek(0)
+
+        #change the imagefield value to be the newley modifed image value
+        self.image = InMemoryUploadedFile(output,'ImageField', "%s.jpg" %self.image.name.split('.')[0], 'image/jpeg', sys.getsizeof(output), None)
+
+        super(Item,self).save()
 
 
 class Barcode(BarcodeHistoryMixin, models.Model):
