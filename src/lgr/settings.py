@@ -135,6 +135,13 @@ STATIC_URL = '/static/'
 STATIC_ROOT = 'static/'
 
 
+# Media files (e.g. uploaded images)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# relative path for item images; if many files will get uploaded, this could be changed even to 'images/items/%Y/%m/%d/'
+MEDIA_ITEM_PATH = 'images/items/%Y/'
+
+
 # Tests
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
