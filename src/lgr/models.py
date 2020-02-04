@@ -43,7 +43,7 @@ class Item(models.Model):
     image_tag.short_description = 'Image Preview'
 
     # adapted from: https://djangosnippets.org/snippets/10597/
-    def save(self):
+    def save(self, **kwargs):
         if self.image:
             #Opening the uploaded image
             im = Image.open(self.image)
