@@ -11,11 +11,12 @@ router = routers.DefaultRouter()
 class BarcodeSerializer(serializers.HyperlinkedModelSerializer):
     item_name = serializers.ReadOnlyField(source='item.name', read_only=True)
     item_description = serializers.ReadOnlyField(source='item.description', read_only=True)
+    item_image = serializers.ImageField(source='item.image', read_only=True)
 
     class Meta:
         model = models.Barcode
         fields = ('code', 'parent', 'owner', 'item', 'description',
-                  'item_name', 'item_description', 'api_child_names',
+                  'item_name', 'item_description', 'item_image', 'api_child_names',
                   'api_parent_names', 'api_loan_info', 'api_history')
 
 

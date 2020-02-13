@@ -10,6 +10,7 @@ Steps:
 python -m venv env
 . env/bin/activate
 pip install -e .
+pip install django-cleanup
 ./manage.py migrate
 ./manage.py createsuperuser
 ```

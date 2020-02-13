@@ -262,6 +262,10 @@
                                         <li><a>self</a></li>
                                     </ul>
                                 </nav>
+                                <div v-if="props.row.item_image" class="content">
+                                    Image:
+                                    <img :src="props.row.item_image">
+                                </div>
                                 <div v-if="props.row.api_child_names.length > 0" class="content">
                                     Children:
                                     <ul>

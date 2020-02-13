@@ -306,6 +306,7 @@ class ItemAdmin(admin.ModelAdmin):
     search_fields = ('name', )
     inlines = (BarcodeInline, )
     actions = ('merge_newest', 'merge_oldest')
+    readonly_fields = ('image_tag', )
 
     def count(self, obj):
         return obj.barcodes.count()
