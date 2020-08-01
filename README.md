@@ -7,11 +7,17 @@ A currently experimental inventory management system.
 Steps:
 
 ```bash
+# create virtualenv, activate and install lgr
 python -m venv env
 . env/bin/activate
 pip install -e .
-./manage.py migrate
-./manage.py createsuperuser
+
+# setup database and user
+lgr migrate
+lgr createsuperuser
+
+# run local server
+lgr runserver
 ```
 
 ## Migrate from first version
@@ -20,5 +26,5 @@ pip install -e .
 jq < data.json 'map(select(.model|test("^inventory"))) | map(select(.model!="inventory.history"))' \
   | sed 's/inventory\./lgr./g' \
   | jq \
-  | ./manage.py loaddata - --format=json
+  | lgr loaddata - --format=json
 ```
