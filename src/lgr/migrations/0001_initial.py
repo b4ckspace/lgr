@@ -9,82 +9,168 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Barcode',
+            name="Barcode",
             fields=[
-                ('code', models.CharField(max_length=64, primary_key=True, serialize=False, unique=True)),
-                ('description', models.TextField(blank=True, default='')),
+                (
+                    "code",
+                    models.CharField(
+                        max_length=64, primary_key=True, serialize=False, unique=True
+                    ),
+                ),
+                ("description", models.TextField(blank=True, default="")),
             ],
             bases=(lgr.mixin.BarcodeHistoryMixin, models.Model),
         ),
         migrations.CreateModel(
-            name='Person',
+            name="Person",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nickname', models.CharField(max_length=64)),
-                ('firstname', models.CharField(blank=True, default='', max_length=64)),
-                ('lastname', models.CharField(blank=True, default='', max_length=64)),
-                ('email', models.EmailField(blank=True, default='', max_length=254)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("nickname", models.CharField(max_length=64)),
+                ("firstname", models.CharField(blank=True, default="", max_length=64)),
+                ("lastname", models.CharField(blank=True, default="", max_length=64)),
+                ("email", models.EmailField(blank=True, default="", max_length=254)),
             ],
         ),
         migrations.CreateModel(
-            name='Tag',
+            name="Tag",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=64)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=64)),
             ],
         ),
         migrations.CreateModel(
-            name='Loan',
+            name="Loan",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('description', models.TextField(blank=True)),
-                ('status', models.CharField(choices=[('taken', 'taken'), ('returned', 'returned')], default='taken', max_length=10)),
-                ('taken_date', models.DateTimeField()),
-                ('return_date', models.DateTimeField(blank=True, null=True)),
-                ('returned_date', models.DateTimeField(blank=True, null=True)),
-                ('barcodes', models.ManyToManyField(related_name='loans', to='lgr.Barcode')),
-                ('person', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='loans', to='lgr.Person')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("description", models.TextField(blank=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("taken", "taken"), ("returned", "returned")],
+                        default="taken",
+                        max_length=10,
+                    ),
+                ),
+                ("taken_date", models.DateTimeField()),
+                ("return_date", models.DateTimeField(blank=True, null=True)),
+                ("returned_date", models.DateTimeField(blank=True, null=True)),
+                (
+                    "barcodes",
+                    models.ManyToManyField(related_name="loans", to="lgr.Barcode"),
+                ),
+                (
+                    "person",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="loans",
+                        to="lgr.Person",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Item',
+            name="Item",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128, unique=True)),
-                ('description', models.TextField(blank=True)),
-                ('tags', models.ManyToManyField(blank=True, to='lgr.Tag')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128, unique=True)),
+                ("description", models.TextField(blank=True)),
+                ("tags", models.ManyToManyField(blank=True, to="lgr.Tag")),
             ],
         ),
         migrations.CreateModel(
-            name='History',
+            name="History",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('message', models.CharField(max_length=1024)),
-                ('affected', models.ManyToManyField(related_name='history', to='lgr.Barcode')),
-                ('person', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='changes', to='lgr.Person')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("message", models.CharField(max_length=1024)),
+                (
+                    "affected",
+                    models.ManyToManyField(related_name="history", to="lgr.Barcode"),
+                ),
+                (
+                    "person",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="changes",
+                        to="lgr.Person",
+                    ),
+                ),
             ],
-            options={
-                'verbose_name_plural': 'Histories',
-            },
+            options={"verbose_name_plural": "Histories",},
         ),
         migrations.AddField(
-            model_name='barcode',
-            name='item',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='barcodes', to='lgr.Item'),
+            model_name="barcode",
+            name="item",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="barcodes",
+                to="lgr.Item",
+            ),
         ),
         migrations.AddField(
-            model_name='barcode',
-            name='owner',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='barcodes', to='lgr.Person'),
+            model_name="barcode",
+            name="owner",
+            field=models.ForeignKey(
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="barcodes",
+                to="lgr.Person",
+            ),
         ),
         migrations.AddField(
-            model_name='barcode',
-            name='parent',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='children', to='lgr.Barcode'),
+            model_name="barcode",
+            name="parent",
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="children",
+                to="lgr.Barcode",
+            ),
         ),
     ]

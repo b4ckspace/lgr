@@ -1,16 +1,13 @@
 from lgr import models
 
 
-class BarcodeHistoryMixin():
+class BarcodeHistoryMixin:
     """Mixin to track the history of changes on a model."""
 
     def diff(self):
         """Return all fields that have been changed as dict."""
         old_obj = type(self).objects.get(pk=self.pk)
-        self._old = {
-            f.name: getattr(self, f.name, None)
-            for f in self._meta.fields
-        }
+        self._old = {f.name: getattr(self, f.name, None) for f in self._meta.fields}
         for field in self._meta.fields:
             field = field.name
             new = getattr(self, field)
@@ -28,7 +25,7 @@ class BarcodeHistoryMixin():
                 history.save()
 
                 # track parent changes for all children
-                if field == 'parent' and old != self:
+                if field == "parent" and old != self:
                     history.affected.set(self.all_children)
                 else:
                     history.affected.set([self])

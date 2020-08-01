@@ -1,4 +1,5 @@
 db.sqlite3
+data.json
 src/lgr/settings_dev.py
 
 # Byte-compiled / optimized / DLL files
