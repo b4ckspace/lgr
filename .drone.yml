@@ -17,7 +17,7 @@ steps:
   - name: docker
     image: plugins/docker
     settings:
-      username: b4ckspce
+      username: b4ckspace
       password: { from_secret: DOCKER_PASSWORD }
       repo: b4ckspace/lgr
       auto_tag: "true"
