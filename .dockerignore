@@ -1,2 +1,4 @@
 env/
 .git/
+db.sqlite3
+settings_*.py

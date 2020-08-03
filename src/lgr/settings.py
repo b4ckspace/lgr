@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import sys
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_DIR = os.getenv("CONFIG_DIR", os.getcwd())
+sys.path.append(CONFIG_DIR)
 
 
 # Quick-start development settings - unsuitable for production
@@ -92,7 +93,7 @@ LOGGING = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        "NAME": os.path.join(CONFIG_DIR, "db.sqlite3"),
     }
 }
 
@@ -148,11 +149,15 @@ REST_FRAMEWORK = {
 }
 
 try:
-    from lgr.settings_dev import *
+    from settings_dev import *
 except ImportError:
     pass
 
 try:
-    from lgr.settings_prod import *
+    from settings_prod import *
 except ImportError:
     pass
+
+if os.getenv("IN_DOCKER") == "True":
+    index = MIDDLEWARE.index("django.middleware.security.SecurityMiddleware")
+    MIDDLEWARE.insert(index + 1, "whitenoise.middleware.WhiteNoiseMiddleware")
