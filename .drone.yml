@@ -5,8 +5,7 @@ steps:
   - name: pypi
     image: python:3
     environment:
-      TWINE_PASSWORD:
-        from_secret: TWINE_PASSWORD
+      TWINE_PASSWORD: { from_secret: TWINE_PASSWORD }
     commands:
       - pip install twine setuptools wheel
       - python3 setup.py sdist bdist_wheel
@@ -14,3 +13,11 @@ steps:
     when:
       event:
         - tag
+
+  - name: docker
+    image: plugins/docker
+    settings:
+      username: b4ckspce
+      password: { from_secret: DOCKER_PASSWORD }
+      repo: b4ckspace/lgr
+      auto_tag: "true"
