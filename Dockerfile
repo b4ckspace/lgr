@@ -36,6 +36,7 @@ WORKDIR /app
 COPY --from=env /app /app
 
 ENV IN_DOCKER=True
+ENV CONFIG_DIR=/config
 WORKDIR /config
 EXPOSE 8000
 CMD /app/env/bin/gunicorn -w 4 -b 0.0.0.0:8000 lgr.wsgi:application
