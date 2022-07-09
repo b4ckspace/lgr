@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "lgr"
+version = "0.1.3"
+description = "Inventory management system"
+authors = ["foosinn <foosinn@f2o.io>"]
+license = "APACHE-2.0"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Django = "^4.0.5"
+django-auth-ldap = "^4.1.0"
+djangorestframework = "^3.13.1"
+django-filter = "^22.1"
+mysqlclient = "^2.1.1"
+coverage = "^6.4.1"
+python-ldap = "3.4.0"
+django-nose = "^1.4.7"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+lgr = "lgr.manage:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
