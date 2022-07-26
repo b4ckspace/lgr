@@ -1,6 +1,5 @@
 FROM python:3.10-slim-bullseye AS poetry
 
-
 RUN true \
   && pip install poetry
 
@@ -32,11 +31,10 @@ RUN true \
   && apt-get install -y libldap-2.4-2 libsasl2-2 libmariadb3 \
   && rm -rf /var/lib/apt
 
-WORKDIR /app
+WORKDIR /app/env/lib/python3.10/site-packages/lgr
 COPY --from=env /app /app
 
 ENV IN_DOCKER=True
 ENV CONFIG_DIR=/config
-WORKDIR /config
 EXPOSE 8000
 CMD /app/env/bin/gunicorn -w 4 -b 0.0.0.0:8000 lgr.wsgi:application
