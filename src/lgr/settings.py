@@ -153,11 +153,13 @@ REST_FRAMEWORK = {
 
 try:
     from settings_dev import *
+    print("loaded settings_dev", file=sys.stderr)
 except ImportError:
     pass
 
 try:
     from settings_prod import *
+    print("loaded settings_prod", file=sys.stderr)
 except ImportError:
     pass
 
