@@ -15,7 +15,7 @@ FROM python:3.10-slim-bullseye AS env
 WORKDIR /app
 
 RUN apt-get update
-RUN apt-get install -y libldap2-dev build-essential libsasl2-dev libmariadb-dev
+RUN apt-get install -y libldap2-dev build-essential libsasl2-dev libmariadb-dev pkg-config
 RUN python -m venv env
 RUN /app/env/bin/pip install gunicorn whitenoise
 
