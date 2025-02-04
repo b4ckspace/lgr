@@ -1,26 +1,14 @@
-FROM python:3.10-slim-bullseye AS poetry
+FROM python:3.10-slim-bullseye AS env
 
-RUN true \
-  && pip install poetry
+RUN apt-get update
+RUN apt-get install -y libldap2-dev build-essential libsasl2-dev libmariadb-dev pkg-config
+RUN pip install poetry poetry-plugin-bundle
 
 WORKDIR /app
 COPY . /app
 
-RUN poetry build
-
-# ---
-
-FROM python:3.10-slim-bullseye AS env
-
-WORKDIR /app
-
-RUN apt-get update
-RUN apt-get install -y libldap2-dev build-essential libsasl2-dev libmariadb-dev pkg-config
-RUN python -m venv env
-RUN /app/env/bin/pip install gunicorn whitenoise
-
-COPY --from=poetry /app/dist/ ./
-RUN /app/env/bin/pip install /app/lgr-*.whl
+RUN poetry add gunicorn whitenoise
+RUN poetry bundle venv env
 
 # ---
 
@@ -37,4 +25,4 @@ COPY --from=env /app /app
 ENV IN_DOCKER=True
 ENV CONFIG_DIR=/config
 EXPOSE 8000
-CMD /app/env/bin/gunicorn -w 4 -b 0.0.0.0:8000 lgr.wsgi:application
+CMD /app/env/bin/python /app/env/bin/gunicorn -w 4 -b 0.0.0.0:8000 lgr.wsgi:application
