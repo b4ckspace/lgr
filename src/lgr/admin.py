@@ -244,6 +244,8 @@ class BarcodeAdmin(admin.ModelAdmin):
                     messages.info(
                         request, "Ignoring parent change to None for %s." % barcode.code
                     )
+                    continue
+
                 messages.info(request, "Parent updated to %s." % (barcode.parent))
 
             barcode.save()
